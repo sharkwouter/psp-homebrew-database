@@ -102,10 +102,10 @@ def create_binary_catalog(homebrew_list: list[Homebrew]) -> None:
     offset_size = 4
 
     category_size = 1
+    id_length_size = 1
     name_length_size = 1
     summary_length_size = 1
     author_length_size = 1
-    id_length_size = 1
     tag_length_size = 1
     url_length_size = 1
     published_at_size = 4
