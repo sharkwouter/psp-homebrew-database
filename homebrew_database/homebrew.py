@@ -5,6 +5,8 @@ import json
 import glob
 import logging
 
+from homebrew_database.utils import relative_to_absolute_url
+
 
 class HomebrewProcessingException(Exception):
     pass
@@ -129,12 +131,16 @@ def get_homebrew_from_json_data(id: str, data: dict) -> Homebrew:
                 )
             )
 
+        screenshots = []
+        for screenshot in data["media"].get("screenshots", []):
+            screenshots.append(relative_to_absolute_url(screenshot))
+
         homebrew = Homebrew(
           name=data["name"],
           id=id,
           summary=data["summary"],
           author=data["author"],
-          screenshots=data["media"]["screenshots"],
+          screenshots=screenshots,
           ai_used=data["ai_used"],
           requires_additional_files=data["requires_additional_files"],
           category=data["category"],
@@ -144,7 +150,7 @@ def get_homebrew_from_json_data(id: str, data: dict) -> Homebrew:
           license=data.get("license", None),
           releases=releases,
           tags=data.get("tags", list()),
-          icon=data["media"].get("icon", None),
+          icon=relative_to_absolute_url(data["media"].get("icon", None)),
           languages=data.get("languages", list()),
         )
     except (KeyError, ValueError) as e:
