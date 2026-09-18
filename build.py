@@ -105,20 +105,20 @@ def create_binary_catalog(homebrew_list: list[Homebrew]) -> None:
     name_length_size = 1
     summary_length_size = 1
     author_length_size = 1
-    icon_length_size = 1
+    id_length_size = 1
     tag_length_size = 1
     url_length_size = 1
     published_at_size = 4
     size_size = 4
     homebrew_struct_size = (
         category_size +
+        id_length_size +
+        offset_size +
         name_length_size +
         offset_size +
         summary_length_size +
         offset_size +
         author_length_size +
-        offset_size +
-        icon_length_size +
         offset_size +
         tag_length_size +
         offset_size +
@@ -145,6 +145,13 @@ def create_binary_catalog(homebrew_list: list[Homebrew]) -> None:
             else:
                 fd.write(int(1).to_bytes(category_size, byteorder='little', signed=False))
 
+            # Id
+            id_length = len(homebrew.id.encode("utf-8"))
+            fd.write(id_length.to_bytes(id_length_size, byteorder='little', signed=False))
+            fd.write(current_offset.to_bytes(offset_size, byteorder='little', signed=False))
+            strings_to_append.append(homebrew.icon)
+            current_offset += id_length
+
             # Name
             name_length = len(homebrew.name.encode("utf-8"))
             fd.write(name_length.to_bytes(name_length_size, byteorder='little', signed=False))
@@ -165,13 +172,6 @@ def create_binary_catalog(homebrew_list: list[Homebrew]) -> None:
             fd.write(current_offset.to_bytes(offset_size, byteorder='little', signed=False))
             strings_to_append.append(homebrew.author)
             current_offset += author_length
-
-            # Icon
-            icon_length = len(homebrew.icon.encode("utf-8"))
-            fd.write(icon_length.to_bytes(icon_length_size, byteorder='little', signed=False))
-            fd.write(current_offset.to_bytes(offset_size, byteorder='little', signed=False))
-            strings_to_append.append(homebrew.icon)
-            current_offset += icon_length
 
             # Tag
             tag_length = len(last_release.tag.encode("utf-8"))
